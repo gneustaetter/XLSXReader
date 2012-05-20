@@ -152,6 +152,16 @@ class XLSXReader {
 		return simplexml_load_string($this->getEntryData($this->sheetInfo[$name]['path']));
 	}
 
+	// converts an Excel date field (a number) to a unix timestamp (granularity: seconds)
+	public static function toUnixTimeStamp($excelDateTime) {
+		if(!is_numeric($excelDateTime)) {
+			return $excelDateTime;
+		}
+		$d = floor($excelDateTime); // seconds since 1900
+		$t = $excelDateTime - $d;
+		return ($d > 0) ? ( $d - 25569 ) * 86400 + $t * 86400 : $t * 86400;
+	}
+
 }
 
 class XLSXWorksheet {
@@ -290,13 +300,6 @@ class XLSXWorksheet {
 				}
 		}
 		return $value;
-	}
-
-	// converts an Excel date field (a number) to a unix timestamp (granularity: seconds)
-	public static function toUnixTimeStamp($excelDateTime) {
-		$d = floor($excelDateTime); // seconds since 1900
-		$t = $excelDateTime - $d;
-		return ($d > 0) ? ( $d - 25569 ) * 86400 + $t * 86400 : $t * 86400;
 	}
 
 	// returns the text content from a rich text or inline string field
