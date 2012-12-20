@@ -277,7 +277,7 @@ class XLSXWorksheet {
 				}
 				break;
 			case "inlineStr": // Value is rich text inline
-				$value = $self::parseRichText($cell->is);
+				$value = self::parseRichText($cell->is);
 				break;
 			case "e": // Value is an error message
 				if ((string)$cell->v != '') {
