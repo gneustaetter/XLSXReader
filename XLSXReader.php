@@ -31,7 +31,7 @@ class XLSXReader {
 	public $config = array(
 		'removeTrailingRows' => true
 	);
-	
+
 	// XML schemas
 	const SCHEMA_OFFICEDOCUMENT  =  'http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument';
 	const SCHEMA_RELATIONSHIP  =  'http://schemas.openxmlformats.org/package/2006/relationships';
@@ -68,13 +68,13 @@ class XLSXReader {
 			if($rel['Type'] == self::SCHEMA_OFFICEDOCUMENT) {
 				$workbookDir = dirname($rel['Target']) . '/';
 				$workbookXML = simplexml_load_string($this->getEntryData($rel['Target']));
-				foreach($workbookXML->sheets->sheet as $sheet) {				
+				foreach($workbookXML->sheets->sheet as $sheet) {
 					$r = $sheet->attributes('r', true);
 					$sheets[(string)$r->id] = array(
 						'sheetId' => (int)$sheet['sheetId'],
 						'name' => (string)$sheet['name']
 					);
-					
+
 				}
 				$workbookRelationsXML = simplexml_load_string($this->getEntryData($workbookDir . '_rels/' . basename($rel['Target']) . '.rels'));
 				foreach($workbookRelationsXML->Relationship as $wrel) {
@@ -192,10 +192,12 @@ class XLSXWorksheet {
 
 	protected function parseDimensions($dimensions) {
 		$range = (string) $dimensions['ref'];
-		$cells = explode(':', $range);
-		$maxValues = $this->getColumnIndex($cells[1]);
-		$this->colCount = $maxValues[0] + 1;
-		$this->rowCount = $maxValues[1] + 1;
+		if ($range) {
+			$cells = explode(':', $range);
+			$maxValues = $this->getColumnIndex($cells[1]);
+			$this->colCount = $maxValues[0] + 1;
+			$this->rowCount = $maxValues[1] + 1;
+		}
 	}
 
 	protected function parseData($sheetData) {
@@ -242,7 +244,7 @@ class XLSXWorksheet {
 
 	protected function getColumnIndex($cell = 'A1') {
 		if (preg_match("/([A-Z]+)(\d+)/", $cell, $matches)) {
-			
+
 			$col = $matches[1];
 			$row = $matches[2];
 			$colLen = strlen($col);
@@ -255,7 +257,7 @@ class XLSXWorksheet {
 		}
 		throw new Exception("Invalid cell index");
 	}
-	
+
 	protected function parseCellValue($cell) {
 		// $cell['t'] is the cell type
 		switch ((string)$cell["t"]) {
